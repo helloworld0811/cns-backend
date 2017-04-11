@@ -22,6 +22,10 @@ There arethe following features provided in the current revision:
 2. Assuming you have the prerequisites, run `gradle build` to install dependencies the application will use.
 3. Set up the Database as mentioned in the section below.
 4. To start up the server, run `gradle bootRun`. The application will be listening on port 8080.
+5. To make a workflow applicable data in the DB, execute the following REST calls on your browser in sequence:
+   * http://localhost:8080/api/v1/youtube/update/category/build
+   * http://localhost:8080/api/v1/youtube/update/channel/buildAll
+   * http://localhost:8080/api/v1/youtube/update/channel/performance-metrics
 
 ### Database Usage
 To set up the DB, install MySQL server and set up user access as provided in application.properties. Then create an empty schema named as "development".

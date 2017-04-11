@@ -1,0 +1,89 @@
+defaultTasks 'clean', 'build'
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.3.5.RELEASE")
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+apply plugin: 'spring-boot'
+
+jar {
+    baseName = 'cns-backend'
+    version = '0.1.0'
+}
+
+repositories {
+    mavenCentral()
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+dependencies {
+
+   // compile 'com.google.api-client:google-api-client:1.22.0'
+    //compile 'com.google.oauth-client:google-oauth-client-jetty:1.22.0'
+    compile 'org.slf4j:slf4j-api:1.7.13'
+	compile 'org.springframework.boot:spring-boot-starter-web'
+	compile 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    /* Database Drivers -- h2 used by default. See README for MySql/Postgres usage */
+	//compile 'com.h2database:h2'
+    compile 'mysql:mysql-connector-java'
+    compile 'org.postgresql:postgresql'
+    compile 'com.google.apis:google-api-services-youtube:v3-rev182-1.22.0'
+    testCompile 'org.testng:testng:6.9.9'
+    testCompile ("org.springframework.boot:spring-boot-starter-test") {
+        exclude group: 'junit'
+    }
+    testCompile "org.mockito:mockito-all:1.9.5"
+    testCompile "com.jayway.jsonpath:json-path:2.0.0"
+	testRuntime 'com.h2database:h2'
+}
+
+// Copies files to build/docker so that 'docker build -t spring-boot-microservice-blueprint build/docker/' can be used to build image
+task docker() {
+    ext {
+        buildDocker = "${buildDir}/docker"
+    }
+
+    doLast {
+        copy {
+            from jar
+            into buildDocker
+            rename {
+                "${project.name}.jar"
+            }
+        }
+	    copy {
+	        from "${projectDir}/src/docker/"
+	        include "*"
+	        into buildDocker
+	    }
+	}
+	
+    doLast {
+       copy {
+           from "${projectDir}/src/main/resources/application.properties"
+           into "${buildDir}/template"
+           rename {
+               "application.properties"
+           }
+       }
+    }
+}
+
+test {
+    useTestNG()
+    testLogging {
+        events 'passed', 'skipped', 'failed'
+        showStandardStreams false
+    }
+}
